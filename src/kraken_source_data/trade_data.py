@@ -1,12 +1,14 @@
-from pydantic import BaseModel
 import json
 from typing import Dict
+from pydantic import BaseModel
 
 
 class Trade(BaseModel):
     trade_id: str
+    symbol: str
     price: float
-    volume: float
+    qty: float
+    side: str
     timestamp: int
 
     def to_string(self) -> str:
@@ -15,7 +17,9 @@ class Trade(BaseModel):
     def to_dict(self) -> Dict[str, any]:
         return {
             "trade_id": self.trade_id,
+            "symbol": self.symbol,
             "price": self.price,
-            "volume": self.volume,
+            "qty": self.qty,
+            "side": self.side,
             "timestamp": self.timestamp,
         }
