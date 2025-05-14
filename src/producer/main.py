@@ -1,4 +1,4 @@
-from kraken_source_data.kraken_source_sync import KrakenSourceSync
+from src.kraken_source_data.kraken_source_sync import KrakenSourceSync
 import json
 from src.producer.trade_producer import TradeProducer
 from src.logger import logger

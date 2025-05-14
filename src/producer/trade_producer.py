@@ -12,7 +12,7 @@ class TradeProducer:
         record = self.producer.send(
             self.topic,
             key=datetime.fromtimestamp(trade_data.timestamp).date(),
-            value=trade_data.model_dump_json(),
+            value=trade_data.to_dict(),
         )
         logger.info(
             f"Produced message: for key: {trade_data.trade_id} offset of : {record.get().offset}"

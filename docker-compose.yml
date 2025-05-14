@@ -1,4 +1,5 @@
 services:
+
   broker:
     image: apache/kafka:latest
     container_name: broker
@@ -9,8 +10,6 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_LISTENERS: BROKER://broker:29092,CONTROLLER://broker:29093,HOST://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: BROKER://broker:29092,HOST://localhost:9092 
-      # DOCKER://broker:29092 -> advertise to docker internal network,
-      # PLAINTEXT_HOST://localhost:9092 -> advertise to outside world
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
@@ -21,3 +20,13 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_NUM_PARTITIONS: 3
+  
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgresuser
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: postgresdb
