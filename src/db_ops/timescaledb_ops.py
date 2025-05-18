@@ -1,6 +1,6 @@
 import psycopg2
 from src.logger import logger
-class PostgresDBOps:
+class TimescaleDBOps:
     def __init__(self, db_config):
         self.db_config = db_config
         self.conn = None
@@ -15,7 +15,7 @@ class PostgresDBOps:
         except (psycopg2.DatabaseError, Exception) as error:
             logger.warning(error)
     
-    def create_table(self, table_name, columns):
+    def create_table(self, table_name, columns, time_column=None):
         """ Create a table in the PostgreSQL database """
         try:
             with self.conn.cursor() as cursor:
@@ -24,6 +24,12 @@ class PostgresDBOps:
                 cursor.execute(create_table_query)
                 self.conn.commit()
                 logger.info(f'Table {table_name} created successfully.')
+                
+                if time_column:
+                    create_hypertable_query = f"SELECT create_hypertable('{table_name}', by_range('{time_column}'));"
+                    cursor.execute(create_hypertable_query)
+                    self.conn.commit()
+                    logger.info(f'Hypertable {table_name} created successfully.')
         except (psycopg2.DatabaseError, Exception) as error:
             logger.warning(error)
             self.conn.rollback()
@@ -33,7 +39,7 @@ class PostgresDBOps:
         try:
             with self.conn.cursor() as cursor:
                 # Use parameterized queries to prevent SQL injection
-                insert_query = f"INSERT INTO {table_name} (trade_id, symbol, price, qty, side, timestamp) VALUES (%s, %s, %s, %s, %s, %s)"
+                insert_query = f"INSERT INTO {table_name} (trade_id, symbol, price, qty, side, event_timestamp) VALUES (%s, %s, %s, %s, %s, %s)"
                 cursor.execute(insert_query, data)
                 self.conn.commit()
                 logger.info(f'Data inserted into {table_name} successfully.')

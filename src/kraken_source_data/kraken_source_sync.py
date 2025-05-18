@@ -44,7 +44,7 @@ class KrakenSourceSync:
                 price=float(trade["price"]),
                 qty=float(trade["qty"]),
                 side=str(trade["side"]),
-                trade_timestamp=int(isoparse(trade["timestamp"]).timestamp()) * 1000,
+                trade_timestamp=int(isoparse(trade["timestamp"]).timestamp()),
             )
             for trade in data
         ]
