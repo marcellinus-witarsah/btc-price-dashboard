@@ -31,12 +31,9 @@ class KrakenSourceSync:
     def get_trades(self):
         msg = self.ws_conn.recv()
         msg_json = json.loads(msg)
-        logger.info(msg_json)
         if msg_json.get("channel", {}) == "trade":
             trades = self.__get_trades(msg_json["data"])
             return trades
-            # for trade in trades:
-            #     yield trade
 
     def __get_trades(self, data: List[Dict]) -> List[Trade]:
         """Process messages gathered from the Kraken WebSocket Connection"""
@@ -47,7 +44,7 @@ class KrakenSourceSync:
                 price=float(trade["price"]),
                 qty=float(trade["qty"]),
                 side=str(trade["side"]),
-                timestamp=int(isoparse(trade["timestamp"]).timestamp()),
+                trade_timestamp=int(isoparse(trade["timestamp"]).timestamp()) * 1000,
             )
             for trade in data
         ]

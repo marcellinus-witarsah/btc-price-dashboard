@@ -41,6 +41,22 @@ class PostgresDBOps:
             logger.warning(error)
             self.conn.rollback()
     
+        
+    def read_data(self, table_name):
+        """ Read data from the PostgreSQL database """
+        try:
+            with self.conn.cursor() as cursor:
+                # Use parameterized queries to prevent SQL injection
+                select_query = f"SELECT * FROM {table_name}"
+                cursor.execute(select_query)
+                rows = cursor.fetchall()
+                columns = [desc[0] for desc in cursor.description]
+                logger.info(f'Data read from {table_name} successfully.')
+                return (columns, rows)
+        except (psycopg2.DatabaseError, Exception) as error:
+            logger.warning(error)
+            self.conn.rollback()
+    
     
     def close_connection(self):
         """ Close the PostgreSQL database connection """

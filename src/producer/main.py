@@ -22,6 +22,7 @@ if __name__ == "__main__":
             if trades_data is not None:
                 # Produce messages to the topic
                 for trade_data in trades_data:
+                    logger.info(f"Trade Data: {trade_data}")
                     producer.produce_trade(trade_data)
     except KeyboardInterrupt:
         logger.info("Exiting...")
