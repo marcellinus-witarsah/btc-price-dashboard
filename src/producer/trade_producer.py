@@ -11,7 +11,9 @@ class TradeProducer:
     def produce_trade(self, trade_data):
         record = self.producer.send(
             self.topic,
-            key=datetime.fromtimestamp(trade_data.trade_timestamp).date(),  # divide by 1000 because the function only receives unixtime in seconds precision
+            key=datetime.fromtimestamp(
+                trade_data.trade_timestamp
+            ).date(),  # divide by 1000 because the function only receives unixtime in seconds precision
             value=trade_data.to_dict(),
         )
         logger.info(
