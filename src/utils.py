@@ -19,9 +19,3 @@ def load_config(filename, section):
         )
 
     return config
-
-
-def convert_unixtime_to_timestamp_tz(unixtime, timezone_str):
-    datetime_obj = datetime.fromtimestamp(unixtime)
-    tz = pytz.timezone(timezone_str)
-    return tz.localize(datetime_obj)

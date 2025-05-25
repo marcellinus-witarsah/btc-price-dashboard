@@ -2,11 +2,11 @@ import json
 from typing import List, Dict
 from websocket import create_connection
 from dateutil.parser import isoparse
-from src.kraken_source_data.trade_data import Trade
+from src.data.model.trade import Trade
 from src.logger import logger
 
 
-class KrakenSourceSync:
+class KrakenWebSocket:
     def __init__(self, url: str, symbols: List[str]):
         self.__url = url
         self.__symbols = symbols
@@ -44,7 +44,7 @@ class KrakenSourceSync:
                 price=float(trade["price"]),
                 qty=float(trade["qty"]),
                 side=str(trade["side"]),
-                trade_timestamp=int(isoparse(trade["timestamp"]).timestamp()),
+                trade_timestamp=trade["timestamp"],
             )
             for trade in data
         ]

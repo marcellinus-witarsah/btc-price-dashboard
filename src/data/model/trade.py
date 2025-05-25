@@ -9,7 +9,7 @@ class Trade(BaseModel):
     price: float
     qty: float
     side: str
-    trade_timestamp: int
+    trade_timestamp: str
 
     def to_string(self) -> str:
         return json.dumps(self.model_dump())
