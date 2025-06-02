@@ -1,6 +1,4 @@
 from configparser import ConfigParser
-import pytz
-from datetime import datetime
 
 
 def load_config(filename, section):

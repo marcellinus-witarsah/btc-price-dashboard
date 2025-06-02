@@ -2,6 +2,7 @@ import psycopg2
 from psycopg2 import sql
 from src.logger import logger
 
+
 class TimescaleDBOps:
     def __init__(self, db_config):
         self.__db_config = db_config
@@ -19,24 +20,32 @@ class TimescaleDBOps:
         except (psycopg2.DatabaseError, Exception) as error:
             logger.warning(error)
 
-    def create_table(self, table_name:str, columns:dict, primary_key=None):
+    def create_table(self, table_name: str, columns: dict, primary_key=None):
         """Create a table in the TimescaleDB database"""
         try:
             with self.__conn.cursor() as cursor:
                 # Construct SQL String Composition for Columns
-                columns = [sql.SQL("{} {}").format(sql.Identifier(column), sql.SQL(data_type)) for column, data_type in columns.items()]
-                
+                columns = [
+                    sql.SQL("{} {}").format(sql.Identifier(column), sql.SQL(data_type))
+                    for column, data_type in columns.items()
+                ]
+
                 # Construct SQL String Composition for Primary Key
-                primary_key = sql.SQL(", PRIMARY KEY ({})").format(sql.SQL(', ').join(map(sql.Identifier, primary_key))) if primary_key else sql.SQL("")
-                
-                # Construct SQL String Composition for Table Creation
-                query = (
-                    sql.SQL("CREATE TABLE IF NOT EXISTS {table_name} ({columns} {primary_key});")
-                    .format(
-                        table_name=sql.Identifier(table_name),
-                        columns=sql.SQL(', ').join(columns),
-                        primary_key=primary_key
+                primary_key = (
+                    sql.SQL(", PRIMARY KEY ({})").format(
+                        sql.SQL(", ").join(map(sql.Identifier, primary_key))
                     )
+                    if primary_key
+                    else sql.SQL("")
+                )
+
+                # Construct SQL String Composition for Table Creation
+                query = sql.SQL(
+                    "CREATE TABLE IF NOT EXISTS {table_name} ({columns} {primary_key});"
+                ).format(
+                    table_name=sql.Identifier(table_name),
+                    columns=sql.SQL(", ").join(columns),
+                    primary_key=primary_key,
                 )
                 cursor.execute(query)
                 self.__conn.commit()
@@ -54,7 +63,7 @@ class TimescaleDBOps:
                     "SELECT create_hypertable({table_name}, by_range({time_column}));"
                 ).format(
                     table_name=sql.Literal(table_name),
-                    time_column=sql.Literal(time_column)
+                    time_column=sql.Literal(time_column),
                 )
                 cursor.execute(query)
                 self.__conn.commit()
@@ -67,10 +76,12 @@ class TimescaleDBOps:
         """Insert data into the TimescaleDB database"""
         try:
             with self.__conn.cursor() as cursor:
-                query = sql.SQL("INSERT INTO {table_name} ({columns}) VALUES ({values})").format(
+                query = sql.SQL(
+                    "INSERT INTO {table_name} ({columns}) VALUES ({values})"
+                ).format(
                     table_name=sql.Identifier(table_name),
-                    columns=sql.SQL(', ').join(map(sql.Identifier, columns)),
-                    values=sql.SQL(', ').join(sql.Literal(value) for value in values)
+                    columns=sql.SQL(", ").join(map(sql.Identifier, columns)),
+                    values=sql.SQL(", ").join(sql.Literal(value) for value in values),
                 )
                 cursor.execute(query)
                 self.__conn.commit()
@@ -110,11 +121,14 @@ class TimescaleDBOps:
         else:
             logger.info("No connection to close.")
 
-    def create_continuous_aggregation(self, source_table, view, columns, group_by_columns):
+    def create_continuous_aggregation(
+        self, source_table, view, columns, group_by_columns
+    ):
         """Create a continuous aggregation view in the TimescaleDB database."""
         try:
             with self.__conn.cursor() as cursor:
-                query = sql.SQL("""
+                query = sql.SQL(
+                    """
                     CREATE MATERIALIZED VIEW {view}
                     WITH (timescaledb.continuous) AS
                     SELECT
@@ -122,11 +136,12 @@ class TimescaleDBOps:
                     FROM {source_table}
                     GROUP BY {group_by_columns}
                     WITH NO DATA;
-                """).format(
+                """
+                ).format(
                     view=sql.Identifier(view),
-                    columns=sql.SQL(', ').join(map(sql.SQL, columns)),
+                    columns=sql.SQL(", ").join(map(sql.SQL, columns)),
                     source_table=sql.Identifier(source_table),
-                    group_by_columns=sql.SQL(', ').join(map(sql.SQL, group_by_columns)),
+                    group_by_columns=sql.SQL(", ").join(map(sql.SQL, group_by_columns)),
                 )
                 cursor.execute(query)
                 self.__conn.commit()
@@ -142,7 +157,7 @@ class TimescaleDBOps:
         try:
             with self.__conn.cursor() as cursor:
                 query = sql.SQL(
-                """
+                    """
                     SELECT add_continuous_aggregate_policy(
                         {view},
                         start_offset => INTERVAL {start_offset},
@@ -168,7 +183,7 @@ class TimescaleDBOps:
         try:
             with self.__conn.cursor() as cursor:
                 query = sql.SQL(
-                """
+                    """
                     CREATE OR REPLACE FUNCTION {function_name}()
                     RETURNS TRIGGER AS $$
                     BEGIN
@@ -179,13 +194,13 @@ class TimescaleDBOps:
                 """
                 ).format(
                     function_name=sql.Identifier(function_name),
-                    notification_channel_name=sql.Literal(channel_name)
+                    channel_name=sql.Literal(channel_name),
                 )
                 cursor.execute(query)
                 self.__conn.commit()
                 logger.info(f"Notify function {function_name} created successfully.")
         except (psycopg2.DatabaseError, Exception) as error:
-            logger.warning(error)
+            logger.warning(f"Error creating notify function {function_name}: {error}")
             self.__conn.rollback()
 
     def create_trigger(self, table_name, trigger_name, function_name):
@@ -193,7 +208,7 @@ class TimescaleDBOps:
         try:
             with self.__conn.cursor() as cursor:
                 query = sql.SQL(
-                """
+                    """
                     CREATE TRIGGER {trigger_name}
                     AFTER INSERT ON {table_name}
                     FOR EACH ROW
@@ -202,7 +217,7 @@ class TimescaleDBOps:
                 ).format(
                     trigger_name=sql.Identifier(trigger_name),
                     table_name=sql.Identifier(table_name),
-                    function_name=sql.Identifier(function_name)
+                    function_name=sql.Identifier(function_name),
                 )
                 cursor.execute(query)
                 self.__conn.commit()
@@ -210,7 +225,7 @@ class TimescaleDBOps:
         except (psycopg2.DatabaseError, Exception) as error:
             logger.warning(error)
             self.__conn.rollback()
-    
+
     def listen_notification(self, channel_name):
         try:
             with self.__conn.cursor() as cursor:
@@ -221,5 +236,5 @@ class TimescaleDBOps:
                 self.__conn.commit()
                 logger.info(f"Listening to notification channel {channel_name}.")
         except (psycopg2.DatabaseError, Exception) as error:
-            logger.warning(error)
+            logger.warning(f"Error listening to notification channel {channel_name}: {error}")
             self.__conn.rollback()

@@ -1,6 +1,6 @@
 from src.data.kraken_ws import KrakenWebSocket
 import json
-from src.producer.trade_producer import TradeProducer
+from src.kafka.producer.trade_producer import TradeProducer
 from src.logger import logger
 
 if __name__ == "__main__":

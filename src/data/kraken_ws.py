@@ -1,7 +1,6 @@
 import json
 from typing import List, Dict
 from websocket import create_connection
-from dateutil.parser import isoparse
 from src.data.model.trade import Trade
 from src.logger import logger
 

@@ -1,4 +1,4 @@
-from src.timescaledb_ops import TimescaleDBOps
+from src.db_ops.timescaledb_ops import TimescaleDBOps
 import pandas as pd
 import dash
 from dash import dcc, html
@@ -11,7 +11,7 @@ app = dash.Dash(__name__)
 app.title = "Real-Time BTC Chart"
 
 
-def get_latest_ohlcv(granularity="5_seconds"):
+def get_latest_ohlcv(granularity="10_seconds"):
     columns, rows = db_ops.read_data(f"btc_{granularity}_ohlcv", granularity)
     df = pd.DataFrame(rows, columns=columns)
     df["ts"] = df["ts"].dt.tz_convert("Asia/Jakarta")
@@ -21,7 +21,7 @@ def get_latest_ohlcv(granularity="5_seconds"):
 app.layout = html.Div(
     [
         html.H2(
-            "📈 Real-Time BTC Candlestick Chart",
+            "📈 BTC/USD",
             style={
                 "textAlign": "center",
                 "fontFamily": "'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
@@ -35,16 +35,16 @@ app.layout = html.Div(
         dcc.Dropdown(
             id="granularity-dropdown",
             options=[
-                {"label": "5 Seconds", "value": "5_seconds"},
                 {"label": "10 Seconds", "value": "10_seconds"},
-                {"label": "20 Seconds", "value": "20_seconds"},
+                {"label": "30 Seconds", "value": "30_seconds"},
+                {"label": "1 Minute", "value": "1_minute"},
             ],
-            value="5_seconds",  # default value
+            value="10_seconds",  # default value
             clearable=False,
             style={"width": "200px", "margin": "auto"},
         ),
         dcc.Graph(id="live-candle-chart"),
-        dcc.Interval(id="interval-component", interval= 5 * 1000, n_intervals=0),
+        dcc.Interval(id="interval-component", interval=5 * 1000, n_intervals=0),
     ]
 )
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     #############################################################
     # LOAD CONFIGURATION AND CONNECT TO TIMESCALEDB
     #############################################################
-    config = load_config("src/timescaledb.ini", "timescaledb")
+    config = load_config("src/db_ops/timescaledb.ini", "timescaledb")
     db_ops = TimescaleDBOps(config)
 
     #############################################################

@@ -11,7 +11,9 @@ class TradeProducer:
     def produce_trade(self, trade_data):
         record = self.producer.send(
             self.topic,
-            key=datetime.strptime(trade_data.trade_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").date(),
+            key=datetime.strptime(
+                trade_data.trade_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ"
+            ).date(),
             value=trade_data.to_dict(),
         )
         logger.info(
