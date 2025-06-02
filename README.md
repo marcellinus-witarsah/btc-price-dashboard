@@ -1,4 +1,10 @@
 # BTC Price Dashboard
+<p align="center">
+    <img src="https://d2hpp4ok8w7j4q.cloudfront.net/assets/Blog-Banner7.jpg" alt="Candlestick Chart Image" height="500">
+    <p align="center">
+        Figure 1: Candletick Chart Illustration (<a href="https://d2hpp4ok8w7j4q.cloudfront.net/assets/Blog-Banner7.jpg">Source</a>).
+    </p>
+</p>
 
 ## Project Summary
 This project shows a real-time candlestick chart of Bitcoin prices using data from the Kraken WebSocket API.
