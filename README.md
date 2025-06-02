@@ -2,7 +2,7 @@
 <p align="center">
     <img src="assets/2025-06-01 21-37-04.mp4.gif" alt="Candlestick Chart Image" height="500">
     <p align="center">
-        Figure 1: Candletick Chart Illustration (<a href="assets/2025-06-01 21-37-04.mp4.gif">Source</a>).
+        Figure 1: Candlestick Chart Dashboard (GIF by Author).
     </p>
 </p>
 
