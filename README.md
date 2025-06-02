@@ -12,6 +12,9 @@ This project shows a real-time candlestick chart of Bitcoin prices using data fr
 ## Project Scope
 The goal is to create a candlestick chart that supports 10-second, 30-second, and 1-minute timeframes to show real-time data shown on a dashboard.
 
+## Project Documentation Link
+You can visit about the project explanation in this <a href="https://medium.com/@aw_marcell/real-time-data-streaming-project-bitcoin-live-price-dashboard-dda614c28177">Medium blog</a>.
+
 ## Technologies and Libraries
 
 ### Technologies
